@@ -5,10 +5,11 @@ import org.simplejavamail.api.email.Email;
 import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 
 import java.io.*;
 import java.net.*;
-
 
 public class PuppyPledge {
 
@@ -26,9 +27,66 @@ public class PuppyPledge {
 
         String quote = fetchInspirationalQuote();
         System.out.println("Inspirational quote: " + quote);
+        String message = generatePreText() + quote+"\"" + " Hope your day goes well!";
+        sendSMS(message);
 
-        sendSMS(quote);
 
+    }
+
+    public static String generatePreText () {
+        String day = getDay();
+        String[] greetings = new String[]{"Good morning to you! I hope you have a wonderful day ahead filled with joy and success.",
+                "Morning! Wishing you a bright and cheerful start to your day, with all the energy and positivity you need.",
+                "Top of the morning to you! May your day be as radiant as the sunrise, and may you find happiness in every moment.",
+                "Greetings! I hope this morning brings you a sense of peace and purpose, setting the tone for a fantastic day.",
+                "Hello, morning! May the gentle light of dawn inspire you and fill your heart with optimism and enthusiasm.",
+                "Bright and early! Here's to a fresh start and a productive day ahead, with opportunities waiting to be seized.",
+                "Rise and shine! It's time to embrace the new day with a smile, ready to conquer challenges and savor successes.",
+                "Good day to you! May this morning be the beginning of a truly great day, brimming with positivity and fulfillment.",
+                "Happy morning! I hope you feel the warmth of the sun on your face and carry that happiness throughout the day.",
+                "Good morning, my friend! I wish you a beautiful start to the day, setting the stage for wonderful experiences and achievements."};
+        int rand = (int) (Math.random() * 9);
+        String todayGreeting = greetings[rand];
+        String[] dayText = new String[] {
+                "Today is a Marvelous Monday, ",
+                "Today is a Terrific Tuesday, ",
+                "Today is a Wonderful Wednesday, ",
+                "Today is a Thrilling Thursday, ",
+                "Today is a Fantastic Friday, ",
+                "Today is a Sensational Saturday, ",
+                "Today is a Serene Sunday, "};
+        String[] dogNames = {
+                "Biscuit", "Daisy", "Fido", "Max", "Bella", "Charlie", "Luna", "Bailey", "Rosie", "Cooper",
+                "Sadie", "Toby", "Molly", "Buddy", "Lucy", "Rocky", "Lola", "Jack", "Maggie", "Oliver",
+                "Sophie", "Bear", "Chloe", "Duke", "Lily", "Harley", "Ruby", "Zeus", "Zoe", "Winston",
+                "Gracie", "Rusty", "Ellie", "Oscar", "Millie", "Sam", "Penny", "Murphy", "Coco", "Gizmo",
+                "Annie", "Teddy", "Holly", "Simba", "Sasha", "Riley", "Mia", "Louie", "Pepper", "Marley",
+                "Nala", "Maximus", "Mocha", "Scout", "Phoebe", "Bruno", "Cinnamon", "Shadow", "Piper",
+                "Ginger", "Hunter", "Misty", "Apollo", "Daisy Mae", "Jasper", "Muffin", "Rex", "Dolly",
+                "Thor", "Lucky", "Ziggy", "Honey", "Baxter", "Snickers", "Ace", "Cupcake", "Bandit",
+                "Cleo", "Ranger", "Sugar", "Otis", "Nova", "Brutus", "Candy", "Boomer", "Trixie",
+                "Blue", "Pixie", "Hazel", "Frankie", "Sunny", "Lulu", "Copper"
+        };
+        int rand2 = (int) (Math.random() * 100);
+        String puppyText = "and my great friend " + dogNames[rand2] + " has an inspiring quote for us: \"";
+        String todayText = switch (day.toLowerCase()) {
+            case "monday" -> dayText[0];
+            case "tuesday" -> dayText[1];
+            case "wednesday" -> dayText[2];
+            case "thursday" -> dayText[3];
+            case "friday" -> dayText[4];
+            case "saturday" -> dayText[5];
+            case "sunday" -> dayText[6];
+            default -> "Invalid day";
+        };
+
+        return todayGreeting + " " + todayText + puppyText;
+    }
+
+    public static String getDay() {
+        LocalDate date = LocalDate.now();
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        return dayOfWeek.toString();
     }
 
     public static void saveImage(String imageUrl, String destinationFile) throws IOException, URISyntaxException {
@@ -143,18 +201,16 @@ public class PuppyPledge {
     }
 
     private static void sendSMS(String message) {
-
         Email email = EmailBuilder.startingBlank()
-                .from("sender email address")
-                .to("phonenumber@examlplecarrier.com")
+                .from("youremail@email.com")
+                .to("phone#1@recepient's carrier", "phone#2@recepient's carrier")
                 .withSubject("")
                 .withPlainText(message)
                 .withEmbeddedImage("puppy.jpg", new FileDataSource("src/main/resources/puppy.jpg"))
                 .buildEmail();
 
         MailerBuilder
-                // here I use Google, and an app password for authentication. Google recommends OAUTH-2 authentication.
-                .withSMTPServer("smtp.smtp server example.com", 587, "sender login", "authenticator")
+                .withSMTPServer("smtp.your smtp sever", 587, "host email", "host password")
                 .withTransportStrategy(TransportStrategy.SMTP_TLS)
                 .buildMailer()
                 .sendMail(email);
