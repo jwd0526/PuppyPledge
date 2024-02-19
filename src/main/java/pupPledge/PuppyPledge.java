@@ -1,23 +1,14 @@
 package pupPledge;
 
-import java.io.IOException;
-import java.net.*;
-import java.io.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import jakarta.mail.*;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
-import java.util.Properties;
 import jakarta.activation.FileDataSource;
 import org.simplejavamail.api.email.Email;
-import org.simplejavamail.api.mailer.Mailer;
+import org.simplejavamail.api.mailer.config.TransportStrategy;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
-import org.simplejavamail.api.mailer.config.TransportStrategy;
+
+import java.io.*;
+import java.net.*;
+
 
 public class PuppyPledge {
 
@@ -34,8 +25,9 @@ public class PuppyPledge {
         System.out.println("Image downloaded successfully.");
 
         String quote = fetchInspirationalQuote();
-        System.out.println(quote);
+        System.out.println("Inspirational quote: " + quote);
 
+        sendSMS(quote);
 
     }
 
@@ -151,21 +143,20 @@ public class PuppyPledge {
     }
 
     private static void sendSMS(String message) {
-        Mailer mailer;
-        mailer = MailerBuilder
-                .withSMTPServer("smtp.host.com", 587, "user@host.com", "password")
+
+        Email email = EmailBuilder.startingBlank()
+                .from("sender email address")
+                .to("phonenumber@examlplecarrier.com")
+                .withSubject("")
+                .withPlainText(message)
+                .withEmbeddedImage("puppy.jpg", new FileDataSource("src/main/resources/puppy.jpg"))
+                .buildEmail();
+
+        MailerBuilder
+                // here I use Google, and an app password for authentication. Google recommends OAUTH-2 authentication.
+                .withSMTPServer("smtp.smtp server example.com", 587, "sender login", "authenticator")
                 .withTransportStrategy(TransportStrategy.SMTP_TLS)
-                .buildMailer();
-
-        // Create the email
-        Path path = Paths.get("src/main/resources/puppy.jpg");
-        Email email = (Email) EmailBuilder.startingBlank()
-                .from("sender@example.com")
-                .to("recipient@example.com")
-                .withSubject("Subject of the email")
-                .withPlainText("Body of the email")
-                .withEmbeddedImage("puppy.jpg", new FileDataSource("src/main/resources/puppy.jpg"));
-        mailer.sendMail(email);
-
+                .buildMailer()
+                .sendMail(email);
     }
 }

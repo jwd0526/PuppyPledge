@@ -24,6 +24,7 @@
             <artifactId>simple-java-mail</artifactId>
             <version>8.6.3</version>
         </dependency>
+
     </dependencies>
 
 </project>
